@@ -20,11 +20,11 @@ int scalar_integer(SEXP x, const char * name) {
   return ret;
 }
 
-int scalar_double(SEXP x, const char * name) {
+double scalar_double(SEXP x, const char * name) {
   if (length(x) != 1) {
     Rf_error("Expected a length 1 vector for %s", name);
   }
-  double ret = 0;
+  double ret = 0.0;
   if (TYPEOF(x) == INTSXP) {
     ret = INTEGER(x)[0];
   } else if (TYPEOF(x) == REALSXP) {
@@ -57,9 +57,37 @@ SEXP r_power_iteration(SEXP r_m, SEXP r_max_iterations, SEXP r_error,
   return ret;
 }
 
+SEXP r_raleigh_quotient(SEXP r_m, SEXP r_v) {
+  const int n = nrows(r_m);
+  return ScalarReal(raleigh_quotient(n, REAL(r_m), REAL(r_v)));
+}
+
+SEXP r_eigen_power_iteration(SEXP r_m, SEXP r_max_iterations, SEXP r_error,
+                             SEXP r_initial) {
+  const int n = nrows(r_m);
+  const int max_iterations = scalar_integer(r_max_iterations, "max_iterations");
+  const double error = scalar_double(r_error, "error");
+
+  double *x = (double*)R_alloc(n, sizeof(double));
+  if (r_initial == R_NilValue) {
+    GetRNGstate();
+    for (int i = 0; i < n; ++i) {
+      x[i] = unif_rand();
+    }
+    PutRNGstate();
+  } else {
+    memcpy(x, REAL(r_initial), n * sizeof(double));
+  }
+
+  const double *m = REAL(r_m);
+  return ScalarReal(eigen_power_iteration(n, m, max_iterations, error, x));
+}
+
 static const R_CallMethodDef call_methods[] = {
-  {"Cpower_iteration", (DL_FUNC) &r_power_iteration, 4},
-  {NULL,                NULL,                        0}
+  {"Cpower_iteration",       (DL_FUNC) &r_power_iteration,       4},
+  {"Craleigh_quotient",      (DL_FUNC) &r_raleigh_quotient,      2},
+  {"Ceigen_power_iteration", (DL_FUNC) &r_eigen_power_iteration, 4},
+  {NULL,                     NULL,                               0}
 };
 
 void R_init_eigen1(DllInfo *info) {
