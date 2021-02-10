@@ -65,6 +65,7 @@ SEXP r_raleigh_quotient(SEXP r_m, SEXP r_v) {
 SEXP r_eigen_power_iteration(SEXP r_m, SEXP r_max_iterations, SEXP r_error,
                              SEXP r_initial) {
   const int n = nrows(r_m);
+  const double *m = REAL(r_m);
   const int max_iterations = scalar_integer(r_max_iterations, "max_iterations");
   const double error = scalar_double(r_error, "error");
 
@@ -79,8 +80,16 @@ SEXP r_eigen_power_iteration(SEXP r_m, SEXP r_max_iterations, SEXP r_error,
     memcpy(x, REAL(r_initial), n * sizeof(double));
   }
 
-  const double *m = REAL(r_m);
-  return ScalarReal(eigen_power_iteration(n, m, max_iterations, error, x));
+  SEXP dim = getAttrib(r_m, R_DimSymbol);
+  int n_matrices = length(dim) == 3 ? INTEGER(dim)[2] : 1;
+
+  SEXP ret = PROTECT(allocVector(REALSXP, n_matrices));
+  for (int i = 0; i < n_matrices; ++i) {
+    REAL(ret)[i] = eigen_power_iteration(n, m, max_iterations, error, x);
+  }
+
+  UNPROTECT(1);
+  return ret;
 }
 
 static const R_CallMethodDef call_methods[] = {
