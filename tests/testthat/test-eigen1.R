@@ -88,3 +88,20 @@ test_that("base method requires matrix or 3d array", {
   expect_error(eigen1(array(m, c(dim(m), 1)), method = "base"),
                "Expected 'm' to be a matrix or 3d array")
 })
+
+
+test_that("base method copes with non-real eigenvalues", {
+  set.seed(1)
+  for (i in 1:10) {
+    m <- matrix(runif(100), 10, 10)
+    cmp <- eigen(m)$values
+    if (is.complex(cmp)) {
+      break
+    }
+  }
+  expect_equal(
+    eigen1(m, method = "base"),
+    max(as.numeric(cmp[Im(cmp) == 0])))
+  expect_equal(eigen1(m, method = "power_iteration"),
+               eigen1(m, method = "base"))
+})
