@@ -3,6 +3,7 @@
 \name{eigen1}
 \alias{eigen1}
 \alias{eigen1_power_iteration}
+\alias{eigen1_base}
 \title{Compute leading eigenvalue}
 \usage{
 eigen1(m, ..., method = "power_iteration")
@@ -11,16 +12,19 @@ eigen1_power_iteration(
   m,
   max_iterations = 100,
   tolerance = sqrt(.Machine$double.eps),
-  initial = NULL
+  initial = NULL,
+  ...
 )
+
+eigen1_base(m, ...)
 }
 \arguments{
 \item{m}{A matrix or 3d array}
 
-\item{...}{Additional arguments passed to the underlying method}
+\item{...}{Ignored arguments}
 
 \item{method}{Select the method to use. Currently only
-"power_iteration" is supported.}
+"power_iteration" and "base" are supported}
 
 \item{max_iterations}{Integer, giving the number of iterations before
 giving up}
@@ -36,6 +40,14 @@ A scalar real (if \code{m} is a matrix) or a vector with length
 }
 \description{
 Compute the leading eigenvalue for a square matrix
+}
+\details{
+This function exposes two different methods for computing the
+leading eigenvalue of a matrix. The "base" method simply uses
+\link{eigen} but allows 3d arrays (returning a vector of leading
+eigenvalues). The "power_iteration" method uses the power
+iteration method which will work well if there is a significant
+difference between the first and second eigenvalues.
 }
 \examples{
 m <- diag(runif(10))

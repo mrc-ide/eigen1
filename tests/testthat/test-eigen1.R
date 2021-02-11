@@ -64,3 +64,27 @@ test_that("validate the size of an array", {
   expect_error(eigen1(array(m, c(dim(m), 1))),
                "Expected 'm' to be a matrix or 3d array")
 })
+
+
+test_that("base method agrees with R", {
+  set.seed(2)
+  m <- matrix(runif(25), 5, 5)
+  expect_identical(eigen1(m, method = "base"),
+                   cmp <- eigen(m, FALSE, TRUE)$values[[1]])
+})
+
+
+test_that("base method agrees on 3d array", {
+  m <- replicate(3, random_symmetric(5))
+  cmp <- apply(m, 3, function(x) max(eigen(x, FALSE, TRUE)$values))
+  expect_identical(eigen1(m, method = "base"), cmp)
+})
+
+
+test_that("base method requires matrix or 3d array", {
+  m <- replicate(3, random_symmetric(5))
+  expect_error(eigen1(c(m), method = "base"),
+               "Expected 'm' to be a matrix or 3d array")
+  expect_error(eigen1(array(m, c(dim(m), 1)), method = "base"),
+               "Expected 'm' to be a matrix or 3d array")
+})
