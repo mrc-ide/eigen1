@@ -2,8 +2,8 @@
 #include "util.h"
 #include <R.h>
 
-bool power_iteration(int n, const double *m, int max_iterations, double error,
-                     double *x) {
+bool power_iteration(int n, const double *m, int max_iterations,
+                     double tolerance, double *x) {
   double *new_x = (double*) R_alloc(n, sizeof(double));
   for (int i = 0; i < max_iterations; ++i) {
     mult_mv(n, m, x, new_x);
@@ -14,7 +14,7 @@ bool power_iteration(int n, const double *m, int max_iterations, double error,
       x[j] = new_x[j] / norm_new_x;
       err += fabs(x[j] - prev);
     }
-    if (err < error) {
+    if (err < tolerance) {
       return true;
     }
   }
@@ -29,7 +29,7 @@ double raleigh_quotient(int n, const double *m, const double *x) {
 }
 
 double eigen_power_iteration(int n, const double *m, int max_iterations,
-                             double error, double *x) {
-  power_iteration(n, m, max_iterations, error, x);
+                             double tolerance, double *x) {
+  power_iteration(n, m, max_iterations, tolerance, x);
   return raleigh_quotient(n, m, x);
 }

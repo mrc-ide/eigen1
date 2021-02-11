@@ -24,3 +24,10 @@ r_raleigh_quotient <- function(m, x) {
 r_leading_eigenvalue <- function(m) {
   r_raleigh_quotient(m, drop(r_power_iteration(m)))
 }
+
+
+random_symmetric <- function(n) {
+  m <- matrix(runif(n * n), n, n)
+  m[lower.tri(m)] <- t(m)[lower.tri(m)]
+  m
+}
