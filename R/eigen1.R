@@ -40,6 +40,6 @@ eigen1_power_iteration <- function(m, max_iterations = 100,
 }
 
 
-`%||%` <- function(a, b) {
+`%||%` <- function(a, b) { # nolint
   if (is.null(a)) b else a
 }
