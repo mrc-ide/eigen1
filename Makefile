@@ -19,5 +19,8 @@ check:
 check_all:
 	${RSCRIPT} -e "rcmdcheck::rcmdcheck(args = c('--as-cran', '--no-manual'))"
 
+clean:
+	$(RM) src/*.o src/*.so src/*.dll src/*.gcov src/*.gcda src/*.gcno
+
 
 .PHONY: test roxygen install build check check_all vignettes
