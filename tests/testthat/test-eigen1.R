@@ -105,3 +105,12 @@ test_that("base method copes with non-real eigenvalues", {
   expect_equal(eigen1(m, method = "power_iteration"),
                eigen1(m, method = "base"))
 })
+
+
+test_that("can cope with zero matrices", {
+  m <- array(0, c(76, 76, 459))
+  expect_equal(
+    eigen1::eigen1(m, max_iterations = 1e3, tolerance = 1e-6,
+                   method = "power_iteration"),
+    rep(0, 459))
+})

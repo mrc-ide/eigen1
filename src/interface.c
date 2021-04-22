@@ -4,6 +4,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <R_ext/Rdynload.h>
+#include <R_ext/Utils.h>
 #include <Rversion.h>
 
 #include "eigen1.h"
@@ -36,6 +37,15 @@ double scalar_double(SEXP x, const char * name) {
     Rf_error("Expected an number for '%s'", name);
   }
   return ret;
+}
+
+bool all_zero(const double *x, size_t len) {
+  for (size_t i = 0; i < len; ++i) {
+    if (x[i] != 0) {
+      return false;
+    }
+  }
+  return true;
 }
 
 SEXP r_eigen_power_iteration(SEXP r_m, SEXP r_max_iterations, SEXP r_tolerance,
@@ -74,8 +84,14 @@ SEXP r_eigen_power_iteration(SEXP r_m, SEXP r_max_iterations, SEXP r_tolerance,
   SEXP ret = PROTECT(Rf_allocVector(REALSXP, n_matrices));
   const int len = n * n;
   for (int i = 0; i < n_matrices; ++i) {
-    REAL(ret)[i] = eigen_power_iteration(n, m + i * len,
-                                         max_iterations, tolerance, x);
+    const double *m_i = m + i * len;
+    if (all_zero(m_i, len)) {
+      REAL(ret)[i] = 0;
+    } else {
+      REAL(ret)[i] = eigen_power_iteration(n, m_i,
+                                           max_iterations, tolerance, x);
+    }
+    R_CheckUserInterrupt();
   }
 
   UNPROTECT(1);
